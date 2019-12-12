@@ -338,9 +338,9 @@ for aenttypename, key, uuid, value in importCon.execute("""
 	#print "!!%s -- %s!!" %(line, out)
 	#if (len(out) ==4):      
 	update = "update %s set %s = ? where uuid = %s;" % (clean(aenttypename), clean(key), uuid)
-		data = (unicode(value.replace("\\n","\n").replace("'","''").replace("{","").replace("}","").replace("_"," ")),)
+	data = (unicode(value.replace("\\n","\n").replace("'","''").replace("{","").replace("}","").replace("_"," ")),)
 		# print update, data
-		exportCon.execute(update, data)
+	exportCon.execute(update, data)
 
 
 
