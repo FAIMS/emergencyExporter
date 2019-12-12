@@ -324,22 +324,26 @@ for line in codecs.open(exportDir+'shape.out', 'r', encoding='utf-8').readlines(
 
 updateArray = []
 
-for aenttypename, key, uuid, value in importCon.execute("""
+for aenttypename, key, value, uuid in importCon.execute("""
 
-	select aenttypename, attributename, coalese(vocabname, measure) || coalesce('||freetext||')', ''), uuid
+	select aenttypename, attributename, coalesce(vocabname, measure) || coalesce(' '||freetext, ''), uuid
 	  from latestNonDeletedArchent
 	  JOIN aenttype using (aenttypeid)
 	  JOIN idealaent using (aenttypeid)
 	  join attributekey  using (attributeid)
 	  left outer join latestNonDeletedAentValue using (uuid, attributeid)   
-	""" % (srid)):
+	  left outer join vocabulary using (vocabid, attributeid)
+	"""):
 
 	#out = line.replace("\n","").replace("\\r","").split("\t")
 	#print "!!%s -- %s!!" %(line, out)
 	#if (len(out) ==4):      
-	update = "update %s set %s = ? where uuid = %s;" % (clean(aenttypename), clean(key), uuid)
-	data = (unicode(value.replace("\\n","\n").replace("'","''").replace("{","").replace("}","").replace("_"," ")),)
-		# print update, data
+	update = "update %s set %s = ? where uuid = ?;" % (clean(aenttypename), clean(key))
+	if type(value) == str or type(value) == unicode:
+		data = (unicode(value.replace("\\n","\n").replace("'","''").replace("{","").replace("}","").replace("_"," ")),uuid)
+	else:
+		data = (value,uuid)
+	# print update, data
 	exportCon.execute(update, data)
 
 
